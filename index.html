@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Database Berkas Guru & Foto (Multi-Year SK Append System)</title>
+    <style>
+        :root {
+            --primary: #1b365d;
+            --primary-hover: #122543;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --border: #dcdfe6;
+            --text: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #2980b9;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        /* STYLING HALAMAN LOGIN */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(27, 54, 93, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .login-card h2 {
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-size: 22px;
+        }
+
+        .login-card p {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-card button:hover {
+            background: var(--primary-hover);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: none;
+            background: #fde8e8;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #f8b4b4;
+        }
+
+        /* MODAL POPUP */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: var(--primary);
+            font-size: 18px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        /* STYLING APLIKASI UTAMA */
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 18px 22px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            background: white;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        header h1 {
+            font-size: 20px;
+        }
+
+        .user-status {
+            font-size: 13px;
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .header-btns {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--bg);
+            padding-bottom: 8px;
+        }
+
+        .welcome-banner {
+            background: #e8f8f0;
+            color: #1e8449;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-left: 6px solid #27ae60;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-group input[type="file"] {
+            padding: 6px;
+            background: #f8f9fa;
+            font-size: 15px;
+        }
+
+        .avatar-preview-box {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 20px;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px dashed var(--border);
+        }
+
+        .avatar-img {
+            width: 80px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #e9ecef;
+        }
+
+        .yearly-box {
+            background: #f0fff4;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #27ae60;
+            margin-top: 15px;
+            margin-bottom: 16px;
+        }
+
+        .yearly-box h4 {
+            font-size: 15px;
+            color: #1e8449;
+            margin-bottom: 12px;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-warning { background-color: var(--warning); color: white; }
+
+        .search-box {
+            margin-bottom: 18px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .table-avatar {
+            width: 50px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #eee;
+        }
+
+        .doc-item-box {
+            display: inline-flex;
+            align-items: center;
+            background: #f8f9fa;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin: 4px 2px;
+            font-size: 14px;
+            gap: 6px;
+        }
+
+        .doc-title {
+            font-weight: bold;
+            color: var(--text);
+            margin-right: 4px;
+        }
+
+        .doc-btn {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .doc-btn-view { background-color: var(--info); }
+        .doc-btn-view:hover { background-color: #1f618d; }
+
+        .doc-btn-dl { background-color: var(--success); }
+        .doc-btn-dl:hover { background-color: #1e8449; }
+
+        .badge-missing {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 3px;
+            background: #fde8e8;
+            color: var(--danger);
+            border: 1px solid #f8b4b4;
+        }
+
+        .badge-role-admin { background: #e8f0fe; color: #1a73e8; border: 1px solid #aecbfa; font-size: 13px; }
+        .badge-role-user { background: #fef7e0; color: #b06000; border: 1px solid #fde293; font-size: 13px; }
+
+        .action-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .action-link:hover { text-decoration: underline; }
+
+        .pass-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pass-toggle-btn {
+            cursor: pointer;
+            border: none;
+            background: #eef2f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .pass-toggle-btn:hover {
+            background: #dcdfe6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- OVERLAY HALAMAN LOGIN -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+        <img id="loginSchoolLogo" class="login-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 70 70'><circle cx='35' cy='35' r='33' fill='%231b365d'/><path d='M35 15 L55 28 L55 50 L35 60 L15 50 L15 28 Z' fill='none' stroke='white' stroke-width='3'/><text x='50%' y='53%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='10' font-weight='bold'>SEKOLAH</text></svg>" alt="Logo Sekolah">
+        <h2>Akses Sistem Guru</h2>
+        <p>Masukkan Kredensial Pengguna</p>
+        <div id="loginError" class="error-msg">User ID / Username atau Password salah!</div>
+        <form id="loginForm">
+            <input type="text" id="loginUsername" placeholder="User ID (Login) / Nama Pengguna" required autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Masuk Sistem</button>
+        </form>
+    </div>
+</div>
+
+<!-- CONTAINER UTAMA APLIKASI -->
+<div id="mainContainer" class="container">
+    <header>
+        <div class="header-brand">
+            <img id="appSchoolLogo" class="header-logo" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='70' viewBox='0 0 70 70'><circle cx='35' cy='35' r='33' fill='%231b365d'/><path d='M35 15 L55 28 L55 50 L35 60 L15 50 L15 28 Z' fill='none' stroke='white' stroke-width='3'/><text x='50%' y='53%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='10' font-weight='bold'>SEKOLAH</text></svg>" alt="Logo Sekolah">
+            <div>
+                <h1>Database Berkas Digital & Foto Guru</h1>
+                <div class="user-status" id="currentUserDisplay">Login: -</div>
+            </div>
+        </div>
+        <div class="header-btns">
+            <button class="btn-secondary admin-only" onclick="document.getElementById('logoFile').click()" title="Unggah logo sekolah">Ganti Logo</button>
+            <input type="file" id="logoFile" accept="image/*" style="display:none" onchange="uploadSchoolLogo(event)">
+            
+            <button class="btn-warning admin-only" onclick="openUserMgmtModal()">Kelola Pengguna</button>
+            <button class="btn-secondary" onclick="openProfileModal()">Ubah Akun Saya</button>
+            
+            <button class="btn-secondary admin-only" onclick="exportDatabase()">Backup (JSON)</button>
+            <button class="btn-secondary admin-only" onclick="document.getElementById('importFile').click()">Restore</button>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+            <input type="file" id="importFile" style="display:none" onchange="importDatabase(event)">
+        </div>
+    </header>
+
+    <!-- FORM INPUT DATA GURU -->
+    <div class="card">
+        <div class="welcome-banner" id="welcomeUserGreeting">
+            👋 Selamat datang, <span id="greetingUsername">User</span>!
+        </div>
+
+        <h2 id="formTitle">Form Penginputan Data Guru</h2>
+        <form id="teacherForm">
+            <input type="hidden" id="teacherId">
+            
+            <div class="avatar-preview-box">
+                <img id="photoPreview" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='90' viewBox='0 0 70 90'><rect width='70' height='90' fill='%23e9ecef'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23aaa' font-size='12'>Foto</text></svg>" alt="Preview Foto">
+                <div class="form-group" style="flex: 1;">
+                    <label>Unggah Pasfoto Guru (JPG / PNG)</label>
+                    <input type="file" id="doc_foto" accept="image/*" onchange="previewPhoto(this)">
+                </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label>Nama Lengkap *</label>
+                    <input type="text" id="nama" required placeholder="Contoh: Ahmad Hidayat, S.Pd.">
+                </div>
+                <div class="form-group">
+                    <label>NIP / NUPTK *</label>
+                    <input type="text" id="nip" required placeholder="Contoh: 198501012010011001">
+                </div>
+                <div class="form-group">
+                    <label>Jabatan / Guru Mapel</label>
+                    <input type="text" id="jabatan" placeholder="Contoh: Guru Kelas 4 / PJOK">
+                </div>
+            </div>
+
+            <h3 style="font-size: 16px; margin-bottom: 14px; color: #555;">Upload Dokumen Utama & Akademik</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>KTP</label><input type="file" id="doc_ktp" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Kartu Keluarga (KK)</label><input type="file" id="doc_kk" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Ijazah SD</label><input type="file" id="doc_ijazah_sd" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Ijazah SMP</label><input type="file" id="doc_ijazah_smp" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Ijazah SMA/SMK</label><input type="file" id="doc_ijazah_sma" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Ijazah S1</label><input type="file" id="doc_ijazah_s1" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>Transkrip Nilai</label><input type="file" id="doc_transkrip_nilai" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>SK Pengangkatan (Awal)</label><input type="file" id="doc_sk_pengangkatan" accept=".pdf,image/*"></div>
+                <div class="form-group"><label>SKBM Awal</label><input type="file" id="doc_skbm_awal" accept=".pdf,image/*"></div>
+            </div>
+
+            <!-- UNGGAH SK PERPANJANGAN & SKBM TAHUNAN DENGAN SISTEM TAMBAH KE DATA YANG SUDAH ADA -->
+            <div class="yearly-box">
+                <h4>📂 Unggah Tambahan SK Perpanjangan & SKBM Tahunan (Menambah ke Data Tersimpan):</h4>
+                <p style="font-size: 13px; color: #555; margin-bottom: 12px;">
+                    <i>Pilih tahun dan jenis SK di bawah ini untuk menambahkan SK perpanjangan baru ke data guru ini tanpa perlu menginput ulang data pribadi.</i>
+                </p>
+                <div style="display:grid; grid-template-columns: 1fr 2fr 1fr; gap:12px; align-items:end;">
+                    <div class="form-group" style="margin:0;">
+                        <label>Tahun SK *</label>
+                        <select id="skYearInput">
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Jenis SK Tahunan *</label>
+                        <select id="skTypeInput">
+                            <option value="SK Perpanjangan">SK Perpanjangan</option>
+                            <option value="SKBM Perpanjangan">SKBM Perpanjangan Tahunan</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin:0;">
+                        <label>Pilih File (PDF/Gambar)</label>
+                        <input type="file" id="doc_sk_tahunan_file" accept=".pdf,image/*">
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn-primary">Simpan / Update Data Berkas</button>
+                <button type="button" class="btn-secondary" onclick="resetForm()">Reset Form</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- TABEL DATABASE GURU -->
+    <div class="card">
+        <h2 id="tableTitle">Daftar Data & Berkas Guru</h2>
+        <div class="search-box" id="searchBoxContainer">
+            <input type="text" id="searchInput" placeholder="Cari berdasarkan Nama atau NIP/NUPTK..." onkeyup="renderTable()">
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 8%;">Foto</th>
+                        <th style="width: 22%;">Nama & NIP</th>
+                        <th style="width: 15%;">Jabatan</th>
+                        <th style="width: 38%;">Status Dokumen & Akses File</th>
+                        <th style="width: 12%;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="teacherTableBody">
+                    <!-- Data via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UBAH USER ID / PASSWORD SAYA -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h3>Ubah Kredensial Saya</h3>
+        <form onsubmit="handleUpdateProfile(event)">
+            <div class="form-group">
+                <label>Nama Pengguna (User Name) *</label>
+                <input type="text" id="profName" required placeholder="Contoh: Administrator Utama / Ahmad">
+            </div>
+            <div class="form-group">
+                <label>User ID (Login Akun) *</label>
+                <input type="text" id="profUsername" required placeholder="Contoh: admin">
+            </div>
+            <div class="form-group">
+                <label>Password Baru *</label>
+                <input type="password" id="profPassword" required placeholder="Masukkan password baru">
+            </div>
+            <div class="btn-group" style="margin-top:15px;">
+                <button type="submit" class="btn-primary">Simpan Perubahan</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('profileModal')">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL MANAJEMEN PENGGUNA (KHUSUS ADMINISTRATOR) -->
+<div id="userMgmtModal" class="modal">
+    <div class="modal-content" style="max-width: 880px;">
+        <h3>Kelola & Tambah Pengguna Sistem</h3>
+        
+        <form id="addUserForm" onsubmit="handleAddUser(event)" style="margin-bottom: 20px; background:#f8f9fa; padding:16px; border-radius:6px; border:1px solid #e0e0e0;">
+            <strong style="font-size:16px; display:block; margin-bottom:12px; color:var(--primary);">Tambah Pengguna Baru:</strong>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:12px;">
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:14px;">Nama Pengguna *</label>
+                    <input type="text" id="newName" required placeholder="Nama Pengguna">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:14px;">User ID (Login) *</label>
+                    <input type="text" id="newUsername" required placeholder="User ID Login">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:14px;">Password *</label>
+                    <input type="password" id="newPassword" required placeholder="Password">
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label style="font-size:14px;">Hak Akses *</label>
+                    <select id="newRole" required style="padding:10px;">
+                        <option value="user">User biasa</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top:14px; width:100%;">+ Tambah Pengguna Baru</button>
+        </form>
+
+        <h4 style="font-size:16px; margin-bottom:12px; color:var(--primary);">Daftar Pengguna Aktif & Kredensial:</h4>
+        <div style="max-height: 250px; overflow-y:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Nama Pengguna</th>
+                        <th style="width: 22%;">User ID (Login)</th>
+                        <th style="width: 23%;">Password</th>
+                        <th style="width: 12%;">Role</th>
+                        <th style="width: 18%;">Aksi & Reset</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- List Users via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top:20px; padding-top:12px; border-top:1px solid #e0e0e0; text-align:right;">
+            <button class="btn-secondary" onclick="closeModal('userMgmtModal')">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initUsers() {
+        if (!localStorage.getItem("system_users")) {
+            applyDefaultUsers();
+        }
+    }
+
+    function applyDefaultUsers() {
+        const defaultUsers = [
+            { name: "Administrator", username: "admin", password: "admin123", role: "admin" },
+            { name: "Guru Pengguna", username: "user", password: "user123", role: "user" }
+        ];
+        localStorage.setItem("system_users", JSON.stringify(defaultUsers));
+    }
+
+    function getUsers() {
+        const users = JSON.parse(localStorage.getItem("system_users") || "[]");
+        return users.map(u => ({
+            name: u.name || u.username,
+            username: u.username,
+            password: u.password,
+            role: u.role
+        }));
+    }
+
+    function saveUsers(users) {
+        localStorage.setItem("system_users", JSON.stringify(users));
+    }
+
+    function getCurrentUser() {
+        return JSON.parse(sessionStorage.getItem("currentUser") || "null");
+    }
+
+    function initAppLogo() {
+        const savedLogo = localStorage.getItem("school_logo");
+        if (savedLogo) {
+            document.getElementById("appSchoolLogo").src = savedLogo;
+            document.getElementById("loginSchoolLogo").src = savedLogo;
+        }
+    }
+
+    function uploadSchoolLogo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Logo = e.target.result;
+            localStorage.setItem("school_logo", base64Logo);
+            document.getElementById("appSchoolLogo").src = base64Logo;
+            document.getElementById("loginSchoolLogo").src = base64Logo;
+            alert("Logo sekolah berhasil diperbarui!");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    initUsers();
+    initAppLogo();
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const currUser = getCurrentUser();
+        if (currUser) {
+            showApp(currUser);
+        }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const uInput = document.getElementById("loginUsername").value.trim().toLowerCase();
+        const pInput = document.getElementById("loginPassword").value.trim();
+
+        const users = getUsers();
+        const match = users.find(u => (u.username.toLowerCase() === uInput || u.name.toLowerCase() === uInput) && u.password === pInput);
+
+        if (match) {
+            sessionStorage.setItem("currentUser", JSON.stringify(match));
+            document.getElementById("loginError").style.display = "none";
+            showApp(match);
+        } else {
+            document.getElementById("loginError").style.display = "block";
+        }
+    });
+
+    function showApp(user) {
+        document.getElementById("loginOverlay").style.display = "none";
+        document.getElementById("mainContainer").style.display = "block";
+        
+        document.getElementById("greetingUsername").innerText = user.name || user.username;
+
+        const roleLabel = user.role === "admin" ? "Administrator (Akses Penuh)" : "Pengguna (Hanya Data Pribadi)";
+        document.getElementById("currentUserDisplay").innerHTML = `User: <b>${user.name || user.username}</b> (${roleLabel})`;
+
+        if (user.role !== "admin") {
+            document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+            document.getElementById("formTitle").innerText = "Form Input / Pembaruan Data Pribadi Saya";
+            document.getElementById("tableTitle").innerText = "Tampilan Data Berkas Pribadi Saya";
+            document.getElementById("searchBoxContainer").style.display = "none";
+        } else {
+            document.querySelectorAll(".admin-only").forEach(el => el.style.display = "inline-block");
+            document.getElementById("formTitle").innerText = "Input Data Guru Baru / Edit Data (Admin)";
+            document.getElementById("tableTitle").innerText = "Database Keseluruhan Berkas Guru (Admin)";
+            document.getElementById("searchBoxContainer").style.display = "block";
+        }
+
+        initIndexedDB();
+    }
+
+    function logout() {
+        sessionStorage.removeItem("currentUser");
+        location.reload();
+    }
+
+    function openProfileModal() {
+        const user = getCurrentUser();
+        document.getElementById("profName").value = user.name || user.username;
+        document.getElementById("profUsername").value = user.username;
+        document.getElementById("profPassword").value = user.password;
+        document.getElementById("profileModal").style.display = "flex";
+    }
+
+    function handleUpdateProfile(e) {
+        e.preventDefault();
+        const currUser = getCurrentUser();
+        const newName = document.getElementById("profName").value.trim();
+        const newU = document.getElementById("profUsername").value.trim();
+        const newP = document.getElementById("profPassword").value.trim();
+
+        let users = getUsers();
+
+        if (newU.toLowerCase() !== currUser.username.toLowerCase() && users.some(u => u.username.toLowerCase() === newU.toLowerCase())) {
+            alert("User ID/Username sudah digunakan oleh akun lain!");
+            return;
+        }
+
+        const oldUsername = currUser.username;
+
+        users = users.map(u => {
+            if (u.username.toLowerCase() === oldUsername.toLowerCase()) {
+                return { ...u, name: newName, username: newU, password: newP, role: u.role };
+            }
+            return u;
+        });
+
+        saveUsers(users);
+        const updatedUser = { ...currUser, name: newName, username: newU, password: newP };
+        sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
+        
+        if (oldUsername !== newU && db) {
+            updateDatabaseOwner(oldUsername, newU);
+        }
+
+        alert("Profil User ID dan Password berhasil diperbarui!");
+        closeModal("profileModal");
+        showApp(updatedUser);
+    }
+
+    function updateDatabaseOwner(oldOwner, newOwner) {
+        const tx = db.transaction("guru", "readwrite");
+        const store = tx.objectStore("guru");
+        const req = store.getAll();
+        req.onsuccess = function() {
+            req.result.forEach(g => {
+                if (g.createdBy === oldOwner) {
+                    g.createdBy = newOwner;
+                    store.put(g);
+                }
+            });
+        };
+    }
+
+    function openUserMgmtModal() {
+        renderUserList();
+        document.getElementById("userMgmtModal").style.display = "flex";
+    }
+
+    function renderUserList() {
+        const users = getUsers();
+        const currUser = getCurrentUser();
+        const tbody = document.getElementById("userTableBody");
+        tbody.innerHTML = "";
+
+        users.forEach((u, index) => {
+            const isSelf = u.username.toLowerCase() === currUser.username.toLowerCase();
+            const badgeClass = u.role === 'admin' ? 'badge-role-admin' : 'badge-role-user';
+            
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><b>${u.name || u.username}</b> ${isSelf ? '<small style="color:var(--success); font-size:13px;">(Saya)</small>' : ''}</td>
+                <td><code>${u.username}</code></td>
+                <td>
+                    <div class="pass-container">
+                        <span id="passText_${index}">••••••••</span>
+                        <button type="button" class="pass-toggle-btn" onclick="toggleViewPassword('${index}', '${u.password}')" title="Lihat/Sembunyikan Password">👁️</button>
+                    </div>
+                </td>
+                <td><span class="badge ${badgeClass}">${u.role.toUpperCase()}</span></td>
+                <td>
+                    <button type="button" class="action-link" style="color:var(--warning); border:none; background:none; cursor:pointer;" onclick="resetSingleUserPassword('${u.username}')">🔄 Reset</button>
+                    ${!isSelf ? ` | <button type="button" class="action-link" style="color:var(--danger); border:none; background:none; cursor:pointer;" onclick="deleteUser('${u.username}')">Hapus</button>` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function toggleViewPassword(index, plainPassword) {
+        const targetEl = document.getElementById(`passText_${index}`);
+        if (targetEl.innerText === "••••••••") {
+            targetEl.innerText = plainPassword;
+            targetEl.style.fontWeight = "bold";
+            targetEl.style.color = "var(--primary)";
+        } else {
+            targetEl.innerText = "••••••••";
+            targetEl.style.fontWeight = "normal";
+            targetEl.style.color = "inherit";
+        }
+    }
+
+    function resetSingleUserPassword(username) {
+        const defaultResetPass = username.toLowerCase() === 'admin' ? 'admin123' : 'user123';
+        if (confirm(`Apakah Anda yakin ingin mereset password untuk User ID '${username}' ke password awal ('${defaultResetPass}')?`)) {
+            let users = getUsers();
+            users = users.map(u => {
+                if (u.username.toLowerCase() === username.toLowerCase()) {
+                    return { ...u, password: defaultResetPass };
+                }
+                return u;
+            });
+            saveUsers(users);
+            alert(`Password untuk User ID '${username}' berhasil direset menjadi: ${defaultResetPass}`);
+            renderUserList();
+        }
+    }
+
+    function handleAddUser(e) {
+        e.preventDefault();
+        const newName = document.getElementById("newName").value.trim();
+        const newU = document.getElementById("newUsername").value.trim();
+        const newP = document.getElementById("newPassword").value.trim();
+        const newR = document.getElementById("newRole").value;
+
+        const users = getUsers();
+        if (users.some(u => u.username.toLowerCase() === newU.toLowerCase())) {
+            alert("User ID ini sudah terdaftar! Gunakan User ID lain.");
+            return;
+        }
+
+        users.push({ name: newName, username: newU, password: newP, role: newR });
+        saveUsers(users);
+        alert("Pengguna baru berhasil ditambahkan!");
+        document.getElementById("addUserForm").reset();
+        renderUserList();
+    }
+
+    function deleteUser(username) {
+        if (confirm(`Apakah Anda yakin ingin menghapus pengguna '${username}'?`)) {
+            let users = getUsers();
+            users = users.filter(u => u.username.toLowerCase() !== username.toLowerCase());
+            saveUsers(users);
+            renderUserList();
+        }
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    let db;
+    const dbName = "DatabaseGuruSecuredDB";
+    
+    // KUNCI BERKAS UTAMA STATIC
+    const staticDocKeys = [
+        'ktp', 'kk', 'ijazah_sd', 'ijazah_smp', 'ijazah_sma', 'ijazah_s1', 
+        'transkrip_nilai', 'sk_pengangkatan', 'skbm_awal'
+    ];
+    
+    const defaultPhotoSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='70' height='90' viewBox='0 0 70 90'><rect width='70' height='90' fill='%23e9ecef'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23aaa' font-size='12'>Foto</text></svg>";
+
+    function initIndexedDB() {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = function(e) {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("guru")) {
+                db.createObjectStore("guru", { keyPath: "id", autoIncrement: true });
+            }
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            renderTable();
+        };
+    }
+
+    const fileToBase64 = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({ name: file.name, type: file.type, data: reader.result });
+        reader.onerror = error => reject(error);
+    });
+
+    function previewPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('photoPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    document.getElementById("teacherForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        
+        const currUser = getCurrentUser();
+        const id = document.getElementById("teacherId").value;
+        const nama = document.getElementById("nama").value;
+        const nip = document.getElementById("nip").value;
+        const jabatan = document.getElementById("jabatan").value;
+
+        let existingData = null;
+        if (id) {
+            existingData = await getGuruById(parseInt(id));
+        }
+
+        let foto = existingData ? existingData.foto : null;
+        let documents = existingData ? (existingData.documents || {}) : {};
+
+        const fotoInput = document.getElementById('doc_foto');
+        if (fotoInput.files.length > 0) {
+            foto = await fileToBase64(fotoInput.files[0]);
+        }
+
+        // BACA BERKAS STATIC (HANYA DITIMPA JIKA DIUNGGAH KEMBALI)
+        for (let key of staticDocKeys) {
+            const input = document.getElementById(`doc_${key}`);
+            if (input && input.files.length > 0) {
+                documents[key] = await fileToBase64(input.files[0]);
+            }
+        }
+
+        // BACA BERKAS SK TAHUNAN DINAMIS (MENAMBAH/MERETAIN FILE YANG SUDAH ADA)
+        const yearlyFileInput = document.getElementById('doc_sk_tahunan_file');
+        if (yearlyFileInput && yearlyFileInput.files.length > 0) {
+            const yr = document.getElementById('skYearInput').value;
+            const type = document.getElementById('skTypeInput').value;
+            const dynamicKey = `${type.toLowerCase().replace(/ /g, '_')}_${yr}`;
+            
+            documents[dynamicKey] = await fileToBase64(yearlyFileInput.files[0]);
+        }
+
+        const teacherData = {
+            nama,
+            nip,
+            jabatan,
+            foto,
+            documents,
+            createdBy: existingData ? existingData.createdBy : currUser.username,
+            updatedAt: new Date().toISOString()
+        };
+
+        const tx = db.transaction("guru", "readwrite");
+        const store = tx.objectStore("guru");
+
+        if (id) {
+            teacherData.id = parseInt(id);
+            store.put(teacherData);
+        } else {
+            store.add(teacherData);
+        }
+
+        tx.oncomplete = function() {
+            alert(id ? "SK Perpanjangan / Berkas berhasil ditambahkan ke data guru!" : "Data Guru Baru & Berkas berhasil disimpan!");
+            resetForm();
+            renderTable();
+        };
+    });
+
+    function getAllGuru() {
+        return new Promise((resolve) => {
+            const tx = db.transaction("guru", "readonly");
+            const store = tx.objectStore("guru");
+            const request = store.getAll();
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    function getGuruById(id) {
+        return new Promise((resolve) => {
+            const tx = db.transaction("guru", "readonly");
+            const store = tx.objectStore("guru");
+            const request = store.get(id);
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
+
+    async function renderTable() {
+        const data = await getAllGuru();
+        const currUser = getCurrentUser();
+        if (!currUser) return;
+
+        const isAdmin = currUser.role === 'admin';
+        const tbody = document.getElementById("teacherTableBody");
+        tbody.innerHTML = "";
+
+        let visibleData = [];
+        if (isAdmin) {
+            const searchKeyword = document.getElementById("searchInput").value.toLowerCase();
+            visibleData = data.filter(g => 
+                g.nama.toLowerCase().includes(searchKeyword) || 
+                g.nip.toLowerCase().includes(searchKeyword)
+            );
+        } else {
+            visibleData = data.filter(g => g.createdBy === currUser.username);
+        }
+
+        if (visibleData.length === 0) {
+            const emptyMsg = isAdmin ? "Belum ada data guru tersimpan." : "Anda belum menginputkan data berkas Anda.";
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">${emptyMsg}</td></tr>`;
+            return;
+        }
+
+        visibleData.forEach((guru, index) => {
+            let docBadges = "";
+            const docs = guru.documents || {};
+
+            // RENDER BERKAS STATIC UTAMA
+            staticDocKeys.forEach(key => {
+                const label = key.replace(/_/g, " ").toUpperCase();
+                if (docs[key]) {
+                    const fileData = docs[key].data;
+                    docBadges += `
+                        <div class="doc-item-box">
+                            <span class="doc-title">${label}</span>
+                            <a href="${fileData}" target="_blank" class="doc-btn doc-btn-view" title="Lihat/Pratinjau ${label}">👁️ Lihat</a>
+                            <a href="${fileData}" download="${guru.nama}_${label}" class="doc-btn doc-btn-dl" title="Download ${label}">📥 Download</a>
+                        </div>
+                    `;
+                } else {
+                    docBadges += `<span class="badge badge-missing" title="${label} belum diunggah">✕ ${label}</span> `;
+                }
+            });
+
+            // RENDER DOKUMEN TAHUNAN DINAMIS (SK PERPANJANGAN & SKBM TAHUNAN DENGAN AKSES LIHAT DAN DOWNLOAD)
+            Object.keys(docs).forEach(key => {
+                if (!staticDocKeys.includes(key)) {
+                    const label = key.replace(/_/g, " ").toUpperCase();
+                    const fileData = docs[key].data;
+                    docBadges += `
+                        <div class="doc-item-box" style="border-color:#27ae60; background:#f0fff4;">
+                            <span class="doc-title" style="color:#1e8449;">📄 ${label}</span>
+                            <a href="${fileData}" target="_blank" class="doc-btn doc-btn-view" title="Lihat ${label}">👁️ Lihat</a>
+                            <a href="${fileData}" download="${guru.nama}_${label}" class="doc-btn doc-btn-dl" title="Download ${label}">📥 Download</a>
+                        </div>
+                    `;
+                }
+            });
+
+            const imgSrc = (guru.foto && guru.foto.data) ? guru.foto.data : defaultPhotoSvg;
+
+            const actionButtons = `
+                <a href="#" class="action-link" onclick="editGuru(${guru.id})">Edit / Tambah SK</a> | 
+                <a href="#" class="action-link" style="color:var(--danger);" onclick="deleteGuru(${guru.id})">Hapus</a>
+            `;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td><img src="${imgSrc}" class="table-avatar" alt="Foto ${guru.nama}"></td>
+                <td><strong>${guru.nama}</strong><br><small style="color:#666; font-size:14px;">NIP: ${guru.nip}</small></td>
+                <td>${guru.jabatan || '-'}</td>
+                <td>${docBadges}</td>
+                <td>${actionButtons}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function editGuru(id) {
+        const guru = await getGuruById(id);
+        if (!guru) return;
+
+        document.getElementById("teacherId").value = guru.id;
+        document.getElementById("nama").value = guru.nama;
+        document.getElementById("nip").value = guru.nip;
+        document.getElementById("jabatan").value = guru.jabatan;
+
+        if (guru.foto && guru.foto.data) {
+            document.getElementById("photoPreview").src = guru.foto.data;
+        } else {
+            document.getElementById("photoPreview").src = defaultPhotoSvg;
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteGuru(id) {
+        if (confirm("Apakah Anda yakin ingin menghapus data dan seluruh berkas ini?")) {
+            const tx = db.transaction("guru", "readwrite");
+            tx.objectStore("guru").delete(id);
+            tx.oncomplete = () => {
+                resetForm();
+                renderTable();
+            };
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("teacherForm").reset();
+        document.getElementById("teacherId").value = "";
+        document.getElementById("photoPreview").src = defaultPhotoSvg;
+    }
+
+    async function exportDatabase() {
+        const data = await getAllGuru();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Backup_Database_Guru_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importDatabase(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                const tx = db.transaction("guru", "readwrite");
+                const store = tx.objectStore("guru");
+                
+                importedData.forEach(guru => {
+                    delete guru.id;
+                    store.add(guru);
+                });
+
+                tx.oncomplete = function() {
+                    alert("Database berhasil di-restore!");
+                    renderTable();
+                };
+            } catch (err) {
+                alert("File JSON tidak valid!");
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>
